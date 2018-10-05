@@ -1,4 +1,5 @@
 'use strict';
+const crypto 			= require('crypto');
 const bcrypt 			= require('bcrypt');
 const bcrypt_p 			= require('bcrypt-promise');
 const jwt           	= require('jsonwebtoken');
@@ -7,11 +8,17 @@ const CONFIG            = require('../config/config');
 
 module.exports = (sequelize, DataTypes) => {
     var Model = sequelize.define('User', {
-        first     : DataTypes.STRING,
-        last      : DataTypes.STRING,
-        email     : {type: DataTypes.STRING, allowNull: true, unique: true, validate: { isEmail: {msg: "Phone number invalid."} }},
-        phone     : {type: DataTypes.STRING, allowNull: true, unique: true, validate: { len: {args: [7, 20], msg: "Phone number invalid, too short."}, isNumeric: { msg: "not a valid phone number."} }},
+        //first     : DataTypes.STRING,
+        //last      : DataTypes.STRING,
+        email     : {type: DataTypes.STRING, allowNull: true, unique: true, validate: { isEmail: {msg: "Email is invalid."} }},
+        //phone     : {type: DataTypes.STRING, allowNull: true, unique: true, validate: { len: {args: [7, 20], msg: "Phone number invalid, too short."}, isNumeric: { msg: "not a valid phone number."} }},
         password  : DataTypes.STRING,
+        salt  : DataTypes.STRING,
+    }, {
+        tableName: 'usr_users',
+        timestamps: false,
+        //underscored: true,
+        //freezeTableName: true,
     });
 
     Model.associate = function(models){
@@ -33,13 +40,16 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Model.prototype.comparePassword = async function (pw) {
-        let err, pass
+        //console.log("+++++++comparePassword", this.password);
+        let err, pass;
         if(!this.password) TE('password not set');
 
-        [err, pass] = await to(bcrypt_p.compare(pw, this.password));
-        if(err) TE(err);
+        const hash = crypto.createHmac('sha256', CONFIG.salt)
+            .update(pw + this.salt)
+            .digest('hex');
 
-        if(!pass) TE('invalid password');
+        //[err, pass] = await to(bcrypt_p.compare(pw, this.password));
+        if(hash != this.password) TE('invalid password');
 
         return this;
     }
@@ -51,6 +61,8 @@ module.exports = (sequelize, DataTypes) => {
 
     Model.prototype.toWeb = function (pw) {
         let json = this.toJSON();
+        delete json.password;
+        delete json.salt;
         return json;
     };
 
