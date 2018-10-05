@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
     var Model = sequelize.define('User', {
         //first     : DataTypes.STRING,
         //last      : DataTypes.STRING,
-        email     : {type: DataTypes.STRING, allowNull: true, unique: true, validate: { isEmail: {msg: "Email is invalid."} }},
+        email     : {type: DataTypes.STRING, allowNull: false, unique: true, validate: { isEmail: {msg: "Email is invalid."} }},
         //phone     : {type: DataTypes.STRING, allowNull: true, unique: true, validate: { len: {args: [7, 20], msg: "Phone number invalid, too short."}, isNumeric: { msg: "not a valid phone number."} }},
-        password  : DataTypes.STRING,
+        password  : {type: DataTypes.STRING, allowNull: false, validate: { len: [2,20] }},
         salt  : DataTypes.STRING,
     }, {
         tableName: 'usr_users',
@@ -28,14 +28,18 @@ module.exports = (sequelize, DataTypes) => {
     Model.beforeSave(async (user, options) => {
         let err;
         if (user.changed('password')){
-            let salt, hash
+            let salt;
+
             [err, salt] = await to(bcrypt.genSalt(10));
             if(err) TE(err.message, true);
 
-            [err, hash] = await to(bcrypt.hash(user.password, salt));
-            if(err) TE(err.message, true);
+
+            const hash = crypto.createHmac('sha256', CONFIG.salt)
+                .update(user.password + salt)
+                .digest('hex');
 
             user.password = hash;
+            user.salt = salt;
         }
     });
 
