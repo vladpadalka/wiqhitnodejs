@@ -2,6 +2,10 @@ const { User } 	    = require('../models');
 const validator     = require('validator');
 const { to, TE }    = require('../services/util.service');
 const Sequelize = require('sequelize');
+const bcrypt 			= require('bcrypt');
+const bcrypt_p 			= require('bcrypt-promise');
+const crypto 			= require('crypto');
+const CONFIG            = require('../config/config');
 
 const createUser = async (userInfo) => {
     //console.log("++++++++createUser1");
@@ -19,7 +23,21 @@ const createUser = async (userInfo) => {
     });
     */
 
-    [err, user] = await to(User.build(userInfo).validate());
+    let user = User.build(userInfo);
+    let salt;
+
+    [err, salt] = await to(bcrypt.genSalt(10));
+    if(err) TE(err.message, true);
+
+    const hash = crypto.createHmac('sha256', CONFIG.salt)
+        .update(user.password + salt)
+        .digest('hex');
+
+    user.password = hash;
+    user.salt = salt;
+    user.username = '';
+
+    [err, user] = await to(user.validate());
     if(err) {
         TE(err.message);
     } else {
