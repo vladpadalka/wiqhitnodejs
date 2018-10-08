@@ -1,6 +1,6 @@
-require('dotenv').config();//instatiate environment variables
+require('dotenv').config();
 
-let CONFIG = {} //Make this global to use all over the application
+let CONFIG = {};
 
 CONFIG.app          = process.env.APP   || 'dev';
 CONFIG.port         = process.env.PORT  || '3000';

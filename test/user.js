@@ -7,8 +7,8 @@ const should = chai.should();
 chai.use(chaiHttp);
 
 const app = require('../app');
-const { User } 	    = require('../models');
-const CONFIG            = require('../config/config');
+const { User } = require('../models');
+const CONFIG = require('../config/config');
 
 const apiVersionNum = '/v1';
 
