@@ -12,8 +12,11 @@ CONFIG.db_name      = process.env.DB_NAME       || 'name';
 CONFIG.db_user      = process.env.DB_USER       || 'root';
 CONFIG.db_password  = process.env.DB_PASSWORD   || '';
 
-CONFIG.jwt_encryption  = process.env.JWT_ENCRYPTION || 'jwt_please_change';
+CONFIG.jwt_encryption  = process.env.JWT_ENCRYPTION || 'please_change';
 CONFIG.jwt_expiration  = process.env.JWT_EXPIRATION || '10000';
-CONFIG.salt = process.env.SALT || 'SyUgag3GeHdQO4kOBMoB';
-    
+CONFIG.salt = process.env.SALT || 'please_change';
+
+CONFIG.test_user_email = process.env.TEST_USER_EMAIL || 'please_change';
+CONFIG.test_user_pw = process.env.TEST_USER_PW || 'please_change';
+
 module.exports = CONFIG;
