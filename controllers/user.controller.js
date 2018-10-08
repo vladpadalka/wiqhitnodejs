@@ -1,5 +1,5 @@
 const { User }          = require('../models');
-const authService       = require('../services/auth.service');
+const userService       = require('../services/user.service');
 const { to, ReE, ReS }  = require('../services/util.service');
 
 const create = async function(req, res){
@@ -13,7 +13,7 @@ const create = async function(req, res){
 
     let err, user;
 
-    [err, user] = await to(authService.createUser(body));
+    [err, user] = await to(userService.createUser(body));
 
     if(err) return ReE(res, err, 422);
     return ReS(res, {message:'Successfully created new user.', user:user.toWeb(), token:user.getJWT()}, 201);
@@ -60,7 +60,7 @@ const login = async function(req, res){
     const body = req.body;
     let err, user;
 
-    [err, user] = await to(authService.authUser(req.body));
+    [err, user] = await to(userService.authUser(req.body));
     if(err) return ReE(res, err, 422);
 
     return ReS(res, {token:user.getJWT(), user:user.toWeb()});
